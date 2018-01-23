@@ -6,7 +6,8 @@ This is the project for generating the learning agent of Atari 'Boxing game' usi
 
 ### Environment
 
-* Pip modules
+Pip modules
+
 ```
 Python == 2.7.13
 
