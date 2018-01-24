@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import argparse, datetime
+import argparse, datetime, os
 import gym
 
 from test import test
@@ -25,9 +25,9 @@ def main():
     dir_save = args.save
     if dir_save == None:
         if args.train:
-            dir_save = './model/' + current_timestamp()
+            dir_save = "%s/model/%s" % (realpath_thisfile(), current_timestamp())
         elif args.test:
-            dir_save = './test_result/' + current_timestamp()
+            dir_save = "%s/test_result/%s" % (realpath_thisfile(), current_timestamp())
 
     if args.train:
         train(env, dir_save)
@@ -43,6 +43,11 @@ def main():
 # Generate the current timestamp
 def current_timestamp():
     return datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+#end
+
+# Get the real path of this file
+def realpath_thisfile():
+    return os.path.dirname(os.path.realpath(__file__))
 #end
 
 
