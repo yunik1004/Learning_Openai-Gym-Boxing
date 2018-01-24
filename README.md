@@ -17,6 +17,8 @@ numpy == 1.13.1
 
 python == 2.7.13
 
+scikit-image == 0.13.0
+
 tensorflow-gpu == 1.0.1
 ```
 

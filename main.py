@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
+# Python batteries
 import argparse, datetime, os
+# Installed modules
 import gym
-
+# User-defined modules
 from test import test
 from train import train
 
@@ -28,6 +30,11 @@ def main():
             dir_save = os.path.join(realpath_thisfile(), 'models', current_timestamp())
         elif args.test:
             dir_save = os.path.join(realpath_thisfile(), 'test_results', current_timestamp())
+        else:
+            parser.error("One of the '--test' or '--train' arguments should be required")
+
+    env = gym.wrappers.Monitor(env, directory=dir_save, force=True)
+    env.seed(0)
 
     if args.train:
         train(env, dir_save)
@@ -38,6 +45,8 @@ def main():
         test(env, dir_model, dir_save)
     else:
         parser.error("One of the '--test' or '--train' arguments should be required")
+
+    env.close()
 #end
 
 # Generate the current timestamp

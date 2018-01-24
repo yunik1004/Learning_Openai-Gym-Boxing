@@ -1,8 +1,7 @@
+# Python batteries
 import os
-
-import matplotlib.pyplot as plt
-import numpy as np
-import tensorflow as tf
+# User-defined modules
+from preprocessors import atari_img_preprocess
 
 
 # Train the agent program
@@ -10,7 +9,12 @@ def train(env, dir_save):
     if not os.path.isdir(dir_save):
         os.mkdir(dir_save)
 
-    env.reset()
-
-    print('train')
+    ob = env.reset()
+    while True:
+        ob_preprocessed = atari_img_preprocess(ob)
+        action = env.action_space.sample()
+        ob, reward, done, _ = env.step(action)
+        if done:
+            break
+    #end
 #end
