@@ -5,7 +5,6 @@ from multiprocessing import Process
 from gym.wrappers import Monitor
 # User-defined modules
 from agents import Agent_Atari
-from tools import current_time_microsecond
 
 
 # Test the agent program
@@ -21,8 +20,8 @@ def test(env, dir_model, dir_save, num_episodes):
     procs = []
 
     for itr_ep in range(num_episodes):
-        dir_record = os.path.join(dir_save, 'record', 'test-ep_%d' % (itr_ep, ))
-        proc = Process(target=test_one, args=(env, dir_record, agent))
+        dir_record = os.path.join(dir_save, 'records', 'test-ep_%d' % (itr_ep, ))
+        proc = Process(target=test_one, args=(agent, dir_record, itr_ep))
         procs.append(proc)
         proc.start()
     #end
@@ -33,10 +32,10 @@ def test(env, dir_model, dir_save, num_episodes):
 #end
 
 # Test one episode
-def test_one(env, dir_record, agent):
-    env_record = Monitor(env, directory=dir_record, force=True)
+def test_one(agent, dir_record, seed):
+    agent.env.seed(seed)
+    env_record = Monitor(agent.env, directory=dir_record)
     ob = env_record.reset()
-    env_record.seed(current_time_microsecond())
     while True:
         action = agent.next_action(ob)
         ob, reward, done, _ = env_record.step(action)

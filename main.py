@@ -42,6 +42,7 @@ def main():
         parser.error("The number of episodes should be a positive integer")
 
     env = gym.make('Boxing-v0')
+    env.seed(0)
 
     if args.train:
         train(env, dir_save, num_episodes)

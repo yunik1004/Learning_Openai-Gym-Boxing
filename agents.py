@@ -6,6 +6,8 @@ from preprocessors import atari_img_preprocess
 
 
 # Learning agent for Atari games
+# # Parameters:
+#  - exploration: boolean. If true, do the exploration.
 class Agent_Atari:
     def __init__(self, env, exploration):
         self.env = env

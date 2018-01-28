@@ -14,17 +14,20 @@ def train(env, dir_save, num_episodes):
     agent = Agent_Atari(env=env, exploration=True)
 
     for itr_ep in range(num_episodes):
-        env_record = Monitor(env, directory=os.path.join(dir_save, 'record', 'train-ep_%d' % (itr_ep, )), force=True)
-        train_one(env_record, dir_save, agent)
+        dir_record = os.path.join(dir_save, 'records', 'train-ep_%d' % (itr_ep, ))
+        train_one(agent, dir_record, 0)
     #end
 #end
 
 # Train one episode
-def train_one(env, dir_save, agent):
-    ob = env.reset()
+def train_one(agent, dir_record, seed=None):
+    if not seed is None:
+        agent.env.seed(seed)
+    env_record = Monitor(agent.env, directory=dir_record)
+    ob = env_record.reset()
     while True:
         action = agent.next_action(ob)
-        ob, reward, done, _ = env.step(action)
+        ob, reward, done, _ = env_record.step(action)
         if done:
             break
     #end
