@@ -28,12 +28,12 @@ This program might not be compatible with other versions of modules.
 
 If you want to train the agent, run the following command:
 ```
-$ python main.py --train [--save dir_to_save_result]
+$ python main.py --train --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 ```
 
 If you want to test the agent with certain model, run the following command:
 ```
-$ python main.py --test --model dir_where_model_is_saved [--save dir_to_save_result]
+$ python main.py --test --model <dir_where_model_is_saved> --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 ```
 
 ## Authors

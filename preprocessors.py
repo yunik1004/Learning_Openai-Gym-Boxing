@@ -9,6 +9,7 @@ def atari_img_preprocess(img):
 #end
 
 # Modify the image into gray-scale image
+## The shape of the image should be M*N*3
 def img_to_gray(img):
     return np.dot(img, [0.299, 0.587, 0.114])
 #end
