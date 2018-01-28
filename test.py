@@ -42,4 +42,5 @@ def test_one(agent, dir_record, seed):
         if done:
             break
     #end
+    env_record.close()
 #end

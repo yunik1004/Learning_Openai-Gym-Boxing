@@ -15,7 +15,7 @@ def train(env, dir_save, num_episodes):
 
     for itr_ep in range(num_episodes):
         dir_record = os.path.join(dir_save, 'records', 'train-ep_%d' % (itr_ep, ))
-        train_one(agent, dir_record, 0)
+        train_one(agent, dir_record)
     #end
 #end
 
@@ -31,4 +31,5 @@ def train_one(agent, dir_record, seed=None):
         if done:
             break
     #end
+    env_record.close()
 #end
