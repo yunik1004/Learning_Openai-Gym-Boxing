@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
 # Python batteries
-import argparse, datetime, os
+import argparse, os
+from datetime import datetime
 # Installed modules
 import gym
 # User-defined modules
@@ -23,22 +24,25 @@ parser.add_argument("-e", "--episodes", type=int, help="The number of episodes. 
 def main():
     args = parser.parse_args()
 
-    if args.train == None and args.test == None:
+    if args.train is None and args.test is None:
         parser.error("One of the '--test' or '--train' arguments should be required")
 
     dir_save = args.save
-    if dir_save == None:
-        if args.train:
-            dir_save = os.path.join(realpath_thisfile(), 'models', current_timestamp())
-        elif args.test:
-            dir_save = os.path.join(realpath_thisfile(), 'test_results', current_timestamp())
+    if dir_save:
+        dir_save = os.path.realpath(dir_save)
+    elif args.train:
+        dir_save = os.path.join(realpath_thisfile(), 'models', current_timestamp())
+    elif args.test:
+        dir_save = os.path.join(realpath_thisfile(), 'test_results', current_timestamp())
 
     dir_model = args.model
-    if dir_model == None and args.test:
+    if dir_model:
+        dir_model = os.path.realpath(dir_model)
+    elif args.test:
         parser.error("'--model' argument is required for testing session")
 
     num_episodes = args.episodes
-    if not num_episodes > 0:
+    if num_episodes <= 0:
         parser.error("The number of episodes should be a positive integer")
 
     env = gym.make('Boxing-v0')
@@ -54,7 +58,7 @@ def main():
 
 # Generate the current timestamp
 def current_timestamp():
-    return datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    return datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 #end
 
 # Get the real path of this file

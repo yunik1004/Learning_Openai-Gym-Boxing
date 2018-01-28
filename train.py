@@ -23,7 +23,9 @@ def train(env, dir_save, num_episodes):
 def train_one(agent, dir_record, seed=None):
     if not seed is None:
         agent.env.seed(seed)
+
     env_record = Monitor(agent.env, directory=dir_record)
+
     ob = env_record.reset()
     while True:
         action = agent.next_action(ob)
@@ -31,5 +33,6 @@ def train_one(agent, dir_record, seed=None):
         if done:
             break
     #end
+
     env_record.close()
 #end
