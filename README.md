@@ -29,7 +29,7 @@ $ pip install -r requirements.txt
 If you want to rebuild the module, run following command in the project directory:
 
 ```bash
-$ cmake CmakeLists.py
+$ cmake CmakeLists.txt
 ```
 
 Run following command in the project directory to install the module:
