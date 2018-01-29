@@ -2,7 +2,7 @@
 import numpy as np
 import tensorflow as tf
 # User-defined modules
-from data_structures import RelpayMemory
+from data_structures import ReplayMemory
 from LearnAtariBoxing.config import *
 from preprocessors import atari_img_preprocess
 
@@ -18,7 +18,7 @@ class Agent_Atari:
     #end
 
     def reset(self):
-        self.replay_memory = RelpayMemory(1)
+        self.replay_memory = ReplayMemory(1)
     #end
 
     ## The shape of the observation(=observed image) should be M*N*3
