@@ -1,5 +1,5 @@
-# Data structure for implementing experience memory
-class ExperienceMemory:
+# Data structure for implementing replay memory
+class ReplayMemory:
     def __init__(self, capacity):
         self.memory = []
         self.capacity = capacity
