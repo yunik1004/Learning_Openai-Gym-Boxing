@@ -10,7 +10,7 @@ from pip.req import parse_requirements
 project_dir = os.path.dirname(os.path.realpath(__file__))
 packages_dir = os.path.join(project_dir, 'src')
 requirements_path = os.path.join(project_dir, 'requirements.txt')
-readme_path = os.path.join(project_dir, 'README.rst')
+readme_path = os.path.join(project_dir, 'README.md')
 
 install_reqs = parse_requirements(requirements_path, session=PipSession())
 reqs = [str(ir.req) for ir in install_reqs]
