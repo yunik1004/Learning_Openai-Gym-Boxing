@@ -3,7 +3,7 @@ import os
 # Installed modules
 from gym.wrappers import Monitor
 # User-defined modules
-from agents import Agent_Atari
+from LearnAtariBoxing.agents import Agent_Atari
 
 
 # Train the agent program
@@ -17,6 +17,8 @@ def train(env, dir_save, num_episodes):
         dir_record = os.path.join(dir_save, 'records', 'train-ep_%d' % (itr_ep, ))
         train_one(agent, dir_record)
     #end
+
+    agent.close_session()
 #end
 
 # Train one episode

@@ -5,7 +5,7 @@ from collections import OrderedDict
 import numpy as np
 from gym.wrappers import Monitor
 # User-defined modules
-from agents import Agent_Atari
+from LearnAtariBoxing.agents import Agent_Atari
 
 
 # Test the agent program
@@ -46,6 +46,8 @@ def test(env, dir_model, dir_save, num_episodes):
     with open(os.path.join(dir_save, 'results.json'), 'w') as f:
         json.dump(results, f, indent=4)
     #end
+
+    agent.close_session()
 #end
 
 # Test one episode
