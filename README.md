@@ -36,7 +36,7 @@ If you want to test the agent with certain model, run the following command in t
 $ python ./src/main.py --test --model <dir_where_model_is_saved> --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 ```
 
-## Test the Program
+## Test whether the program running
 
 If you are using Linux, run the following commands in the project directory:
 
