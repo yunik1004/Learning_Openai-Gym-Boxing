@@ -6,18 +6,37 @@ This is the project for generating the learning agent of Atari 'Boxing' game usi
 
 ### Environment Setup
 
-To run the setup.py code, you need below programs:
+To run this program, you need below programs:
 
 ```
+cmake>=3.5(only if you want to rebuild the module)
+
 pip~=9.0.1
 
 python~=2.7
 ```
 
+(If you want to install the module, you don't need to do next step)
+
 Next, run following command in the project directory to resolve dependencies:
 
 ```bash
-$ python setup.py install
+$ pip install -r requirements.txt
+```
+
+(If you don't want to install the module, you don't need to do following steps)
+
+If you want to rebuild the module, run following command in the project directory:
+
+```bash
+$ cmake CmakeLists.py
+```
+
+Run following command in the project directory to install the module:
+
+```bash
+$ make
+$ make install
 ```
 
 ## Run the Program
@@ -36,11 +55,12 @@ $ python ./src/main.py --test --model <dir_where_model_is_saved> --episodes <the
 
 ## Test the Program
 
-### Test whether the program is running
+### Test whether the program can run
 
 Run the following commands in the project directory:
 
 ```bash
+#Linux
 $ ./tests/test_train.sh
 
 $ ./tests/test_test.sh

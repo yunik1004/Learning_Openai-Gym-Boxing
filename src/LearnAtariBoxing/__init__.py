@@ -6,4 +6,3 @@ from LearnAtariBoxing.test import test
 from LearnAtariBoxing.train import train
 
 __all__ = ['agents', 'test', 'train']
-__version__ = '0.2.0'

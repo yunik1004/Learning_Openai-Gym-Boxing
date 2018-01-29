@@ -30,6 +30,7 @@ setup(
     author_email='yunik1004@gmail.com',
     description="This is the project for generating the learning agent of Atari 'Boxing' game using reinforcement learning and OpenAi-Gym.",
     long_description=readme(),
+    license='GNU AGPLv3',
     python_requires='~=2.7',
     packages=find_packages(packages_dir),
     package_dir={'': packages_dir},
