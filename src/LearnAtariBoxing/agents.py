@@ -2,6 +2,8 @@
 import numpy as np
 import tensorflow as tf
 # User-defined modules
+from data_structures import ExperienceMemory
+from LearnAtariBoxing.config import *
 from preprocessors import atari_img_preprocess
 
 
@@ -16,10 +18,12 @@ class Agent_Atari:
     #end
 
     def reset(self):
-        pass
+        self.experience_memory = ExperienceMemory(1)
     #end
 
+    ## The shape of the observation(=observed image) should be M*N*3
     def next_action(self, observation):
+        self.experience_memory.insert(atari_img_preprocess(observation))
         return self.env.action_space.sample()
     #end
 #end
