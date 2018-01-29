@@ -18,7 +18,7 @@ Environment Setup
 
 To run the 'setup.py' code, you need below programs:
 
-::
+.. code-block::
     pip~=9.0.1
 
     python~=2.7
@@ -27,7 +27,6 @@ Next, run following command in the project directory to resolve
 dependencies:
 
 .. code-block:: bash
-
     $ python setup.py install
 
 
@@ -38,14 +37,12 @@ If you want to train the agent, run the following command in the project
 directory:
 
 .. code-block:: bash
-
     $ python ./src/main.py --train --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 
 If you want to test the agent with certain model, run the following
 command in the project directory:
 
 .. code-block:: bash
-
     $ python ./src/main.py --test --model <dir_where_model_is_saved> --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 
 
@@ -59,7 +56,6 @@ If you are using Linux, run the following commands in the project
 directory:
 
 .. code-block:: bash
-
     # Debian, Ubuntu, etc.
     $ ./tests/test_train.sh
 
