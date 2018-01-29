@@ -1,5 +1,4 @@
 # Installed modules
-import numpy as np
 import tensorflow as tf
 # User-defined modules
 from LearnAtariBoxing.data_structures import ReplayMemory
@@ -71,16 +70,16 @@ class DQN:
         self.num_actions = num_actions
 
         ## Input, output tensor
-        input_x = tf.placeholder(tf.float32, [None, PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT, self.size_replay])
+        self.input_x = tf.placeholder(tf.float32, [None, PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT, self.size_replay])
         self.action = tf.placeholder(tf.float32, [None, num_actions])
         self.reward = tf.placeholder(tf.float32, [None, 1])
 
         ## Dropout probability
-        keep_prob = tf.placeholder(tf.float32)
+        keep_prob = tf.constant(self.dropout)
 
         ## First convolutional layer
         self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=self.size_replay, num_feature_map=self.num_feature_map1, stride=4)
-        output_conv1 = self.conv1.output(input_x)
+        output_conv1 = self.conv1.output(self.input_x)
         output_conv1 = tf.nn.dropout(output_conv1, keep_prob)
         size_output_conv1 = self.conv1.size_output(PROCESSED_INPUT_WIDTH)
 
