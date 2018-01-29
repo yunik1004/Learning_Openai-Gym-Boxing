@@ -35,6 +35,11 @@ class Agent_Atari:
         self.targetDQN.update_variables(self.onlineDQN)
     #end
 
+    ## Save the variables of onlineDQN into file
+    def save_model(self, file_path):
+        self.onlineDQN.save_model(file_path)
+    #end
+
     ## Close the tensorflow session
     def close_session(self):
         try:
@@ -101,8 +106,18 @@ class DQN:
         self.pred = tf.add(tf.matmul(dense1, self.wout), self.bout)
 
         ## Cost function and optimizer
+
+
+        ## Saver setting
+        self.saver = tf.train.Saver({self.conv1.wc, self.conv1.bc, self.conv2.wc, self.conv2.bc, self.wd1, self.bd1, self.wout, self.bout}, max_to_keep=0)
     #end
 
+    ## Save the model variables into file
+    def save_model(self, file_path):
+        self.saver.save(self.sess, file_path)
+    #end
+
+    ## Deep copy the DQN
     def update_variables(self, dqn):
         self.sess.run(tf.assign(self.conv1.wc, dqn.conv1.wc))
         self.sess.run(tf.assign(self.conv1.bc, dqn.conv1.bc))

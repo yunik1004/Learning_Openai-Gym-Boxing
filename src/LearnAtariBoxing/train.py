@@ -18,6 +18,7 @@ def train(env, dir_save, num_episodes):
         train_one(agent, dir_record)
     #end
 
+    agent.save_model(os.path.join(dir_save, 'model.ckpt'))
     agent.close_session()
 #end
 
