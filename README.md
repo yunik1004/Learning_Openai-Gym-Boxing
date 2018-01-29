@@ -1,42 +1,42 @@
-# Learning OpenAi-Gym Boxing
+# Learning Atari Boxing with OpenAi-Gym
 
 This is the project for generating the learning agent of Atari 'Boxing' game using reinforcement learning and OpenAi-Gym.
 
 ## Getting Started
 
-### Environment
+### Environment Setup
 
-Pip modules
+To run the setup.py code, you need below programs:
 
 ```
-gym == 0.9.3
+pip~=9.0.1
 
-matplotlib == 2.0.2
-
-numpy == 1.13.1
-
-python == 2.7.13
-
-scikit-image == 0.13.0
-
-tensorflow-gpu == 1.0.1
+python~=2.7
 ```
 
-This program might not be compatible with other versions of modules.
+Next, run following command in the project directory to resolve dependencies:
+
+```
+$ python setup.py install
+```
 
 ## Run the Program
 
 If you want to train the agent, run the following command in the project directory:
+
 ```
 $ python ./src/main.py --train --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 ```
 
 If you want to test the agent with certain model, run the following command in the project directory:
+
 ```
 $ python ./src/main.py --test --model <dir_where_model_is_saved> --episodes <the_number_of_episodes> [--save <dir_to_save_result>]
 ```
 
-## Test whether the program running
+## Test the Program
+
+### Test whether the program is running
 
 If you are using Linux, run the following commands in the project directory:
 
@@ -45,6 +45,10 @@ $ ./tests/test_train.sh
 
 $ ./tests/test_test.sh
 ```
+
+### Unit test
+
+Currently we do not provide a unit test.
 
 ## Authors
 
