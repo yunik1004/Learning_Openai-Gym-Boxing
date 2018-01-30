@@ -79,7 +79,7 @@ class Agent_Atari:
             self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
             self.num_online_updated += 1
             if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
-                update_targetDQN()
+                self.update_targetDQN()
     #end
 
     ## Update target network
