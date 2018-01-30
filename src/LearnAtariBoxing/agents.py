@@ -64,9 +64,8 @@ class Agent_Atari:
             action = np.argmax(qvalues)
 
         # Decreasing exploitation
-        if self.current_exploration * EPSILON_DECAY >= self.final_exploration:
-            self.current_exploration *= EPSILON_DECAY
-            
+        self.current_exploration = max(self.current_exploration * EPSILON_DECAY, self.final_exploration)
+
         return action
     #end
 
