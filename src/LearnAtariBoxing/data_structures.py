@@ -7,7 +7,6 @@ from LearnAtariBoxing.config import *
 # Data structure for implementing frame sequence
 class FrameSequence:
     def __init__(self):
-        self.memory = []
         self.reset()
     #end
 
@@ -19,6 +18,7 @@ class FrameSequence:
 
     def reset(self):
         ## Initialize by zero-filled frames
+        self.memory = []
         for _ in range(AGENT_HISTORY_LENGTH):
             self.memory.append(np.zeros((PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT)))
     #end
@@ -43,10 +43,6 @@ class ReplayMemory:
     #end
 
     def sample_mini_batch(self):
-        len_memory = len(self.memory)
-        if len_memory == 0:
-            return
-        random_indexes = np.random.randint(len_memory, size=MINIBATCH_SIZE)
-        return map(self.memory.__getitem__, random_indexes)
+        return np.random.choice(self.memory, MINIBATCH_SIZE, replace=False)
     #end
 #end

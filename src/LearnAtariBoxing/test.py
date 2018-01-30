@@ -16,7 +16,7 @@ def test(env, dir_model, dir_save, num_episodes):
     if not os.path.isdir(dir_save):
         os.mkdir(dir_save)
 
-    agent = Agent_Atari(env=env, exploration=False)
+    agent = Agent_Atari(env=env, exploration=0)
 
     # For multiprocessing
     manager = multiprocessing.Manager()

@@ -1,18 +1,17 @@
 # Installed modules
+import numpy as np
 import tensorflow as tf
 # User-defined modules
 from LearnAtariBoxing.data_structures import FrameSequence, ReplayMemory
 from LearnAtariBoxing.config import *
-from LearnAtariBoxing.preprocessors import atari_img_preprocess
 
 
 # Learning agent for Atari games
-# # Parameters:
-#  - exploration: boolean. If true, do the exploration.
 class Agent_Atari:
     def __init__(self, env, exploration, **kwargs):
         self.env = env
-        self.exploration = exploration
+        self.init_exploration = exploration
+        self.final_exploration = 0.1
         self.reset(**kwargs)
     #end
 
@@ -20,6 +19,8 @@ class Agent_Atari:
         self.replay_memory = ReplayMemory()
         self.frame_sequence = FrameSequence()
         self.update_frequency = update_frequency
+        self.current_exploration = self.init_exploration
+        self.num_online_updated = 0
 
         ### Create session
         self.close_session()
@@ -54,7 +55,36 @@ class Agent_Atari:
 
     ## Return next action
     def next_action(self):
-        return self.env.action_space.sample()
+        # Exploration
+        if np.random.sample() < self.current_exploration:
+            action =  self.env.action_space.sample()
+        # Exploitation
+        else:
+            qvalues = self.onlineDQN.output(self.frame_sequence.memory_as_array())
+            action = np.argmax(qvalues)
+
+        # Decreasing exploitation
+        if self.current_exploration * EPSILON_DECAY >= self.final_exploration:
+            self.current_exploration *= EPSILON_DECAY
+            
+        return action
+    #end
+
+    def learn(self):
+        mini_batches = self.replay_memory.sample_mini_batch()
+        for batch in mini_batches:
+            reward = batch['reward']
+            if not batch['done']:
+                reward += DISCOUNT_FACTOR * np.argmax(self.targetDQN.output(batch['fs1']))
+            self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
+            self.num_online_updated += 1
+            if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
+                update_targetDQN()
+    #end
+
+    ## Update target network
+    def update_targetDQN(self):
+        self.targetDQN.update_variables(self.onlineDQN)
     #end
 #end
 
@@ -74,8 +104,8 @@ class DQN:
 
         ## Input, output tensor
         self.input_x = tf.placeholder(tf.float32, [None, PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT, AGENT_HISTORY_LENGTH])
-        self.action = tf.placeholder(tf.float32, [None, num_actions])
-        self.reward = tf.placeholder(tf.float32, [None, 1])
+        self.action = tf.placeholder(tf.int32)
+        self.reward = tf.placeholder(tf.float32)
 
         ## Dropout probability
         keep_prob = tf.constant(self.dropout)
@@ -107,11 +137,22 @@ class DQN:
         self.bout = tf.Variable(tf.truncated_normal([self.num_actions], stddev=0.1))
         self.pred = tf.add(tf.matmul(dense1, self.wout), self.bout)
 
-        ## Cost function and optimizer
-
+        ## Cost function and optimizer - tf.gather(self.pred, self.action)
+        cost = tf.reduce_mean(tf.square(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, self.num_actions)))))
+        optimizer = tf.train.RMSPropOptimizer(learning_rate=0.00025, momentum=0.95)
+        self.training_step = optimizer.minimize(cost)
 
         ## Saver setting
         self.saver = tf.train.Saver({self.conv1.wc, self.conv1.bc, self.conv2.wc, self.conv2.bc, self.wd1, self.bd1, self.wout, self.bout}, max_to_keep=0)
+    #end
+
+    # Run the optimizer
+    def optimize(self, input_x, action, reward):
+        self.sess.run(self.training_step, feed_dict={self.input_x: input_x, self.action: action, self.reward: reward})
+    #end
+
+    def output(self, input_x):
+        return self.sess.run(self.pred, feed_dict={self.input_x: input_x})
     #end
 
     ## Save the model variables into file

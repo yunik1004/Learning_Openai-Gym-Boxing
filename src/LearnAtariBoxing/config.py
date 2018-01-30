@@ -10,3 +10,12 @@ REPLAY_MEMORY_SIZE = 1000000
 
 # Agent history length
 AGENT_HISTORY_LENGTH = 4
+
+# Discount factor for Q-learning update
+DISCOUNT_FACTOR = 0.99
+
+# Target network update frequency
+TARGET_UPDATE_FREQUENCY = 10000
+
+# Epsilon decay for exploitation
+EPSILON_DECAY = 0.99
