@@ -1,7 +1,7 @@
 # Installed modules
 import tensorflow as tf
 # User-defined modules
-from LearnAtariBoxing.data_structures import ReplayMemory
+from LearnAtariBoxing.data_structures import FrameSequence, ReplayMemory
 from LearnAtariBoxing.config import *
 from LearnAtariBoxing.preprocessors import atari_img_preprocess
 
@@ -16,9 +16,9 @@ class Agent_Atari:
         self.reset(**kwargs)
     #end
 
-    def reset(self, size_replay=4, update_frequency=4):
-        self.size_replay = size_replay
-        self.replay_memory = ReplayMemory(self.size_replay)
+    def reset(self, update_frequency=4):
+        self.replay_memory = ReplayMemory()
+        self.frame_sequence = FrameSequence()
         self.update_frequency = update_frequency
 
         ### Create session
@@ -34,6 +34,11 @@ class Agent_Atari:
         self.targetDQN.update_variables(self.onlineDQN)
     #end
 
+    ## Reset the frame sequence - Will be called when the new game starts
+    def reset_frame_sequence():
+        self.frame_sequence.reset()
+    #end
+
     ## Save the variables of onlineDQN into file
     def save_model(self, file_path):
         self.onlineDQN.save_model(file_path)
@@ -47,9 +52,8 @@ class Agent_Atari:
             pass
     #end
 
-    ## The shape of the observation(=observed image) should be M*N*3
-    def next_action(self, observation):
-        self.replay_memory.insert(atari_img_preprocess(observation))
+    ## Return next action
+    def next_action(self):
         return self.env.action_space.sample()
     #end
 #end
@@ -57,7 +61,7 @@ class Agent_Atari:
 
 # Deep Q-Learning Network
 class DQN:
-    def __init__(self, sess, size_replay=4, num_actions=14):
+    def __init__(self, sess, num_actions=14):
         ## Tensorflow session
         self.sess = sess
 
@@ -66,11 +70,10 @@ class DQN:
         self.num_feature_map2 = 64
         self.num_neuron_unit = 512
         self.dropout = 0.75
-        self.size_replay = size_replay
         self.num_actions = num_actions
 
         ## Input, output tensor
-        self.input_x = tf.placeholder(tf.float32, [None, PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT, self.size_replay])
+        self.input_x = tf.placeholder(tf.float32, [None, PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT, AGENT_HISTORY_LENGTH])
         self.action = tf.placeholder(tf.float32, [None, num_actions])
         self.reward = tf.placeholder(tf.float32, [None, 1])
 
@@ -78,7 +81,7 @@ class DQN:
         keep_prob = tf.constant(self.dropout)
 
         ## First convolutional layer
-        self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=self.size_replay, num_feature_map=self.num_feature_map1, stride=4)
+        self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=AGENT_HISTORY_LENGTH, num_feature_map=self.num_feature_map1, stride=4)
         output_conv1 = self.conv1.output(self.input_x)
         output_conv1 = tf.nn.dropout(output_conv1, keep_prob)
         size_output_conv1 = self.conv1.size_output(PROCESSED_INPUT_WIDTH)
