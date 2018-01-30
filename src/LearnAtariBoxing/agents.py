@@ -64,7 +64,8 @@ class Agent_Atari:
             action = np.argmax(qvalues)
 
         # Decreasing exploitation
-        self.current_exploration = max(self.current_exploration * EPSILON_DECAY, self.final_exploration)
+        if self.current_exploration * EPSILON_DECAY >= self.final_exploration:
+            self.current_exploration *= EPSILON_DECAY
 
         return action
     #end
@@ -90,7 +91,7 @@ class Agent_Atari:
 
 # Deep Q-Learning Network
 class DQN:
-    def __init__(self, sess, num_actions=14):
+    def __init__(self, sess):
         ## Tensorflow session
         self.sess = sess
 
@@ -99,7 +100,6 @@ class DQN:
         self.num_feature_map2 = 64
         self.num_neuron_unit = 512
         self.dropout = 0.75
-        self.num_actions = num_actions
 
         ## Input, output tensor
         self.input_x = tf.placeholder(tf.float32, [None, PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT, AGENT_HISTORY_LENGTH])
@@ -132,12 +132,12 @@ class DQN:
         dense1 = tf.nn.dropout(dense1, keep_prob)
 
         ## Output layer
-        self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, self.num_actions], stddev=0.1))
-        self.bout = tf.Variable(tf.truncated_normal([self.num_actions], stddev=0.1))
+        self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, NUM_ACTIONS], stddev=0.1))
+        self.bout = tf.Variable(tf.truncated_normal([NUM_ACTIONS], stddev=0.1))
         self.pred = tf.add(tf.matmul(dense1, self.wout), self.bout)
 
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
-        cost = tf.reduce_mean(tf.square(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, self.num_actions)))))
+        cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, NUM_ACTIONS))), -1, 1)))
         optimizer = tf.train.RMSPropOptimizer(learning_rate=0.00025, momentum=0.95)
         self.training_step = optimizer.minimize(cost)
 
@@ -157,6 +157,11 @@ class DQN:
     ## Save the model variables into file
     def save_model(self, file_path):
         self.saver.save(self.sess, file_path)
+    #end
+
+    ## Import the model variables
+    def import_model(self, file_path):
+        self.saver.restore(self.sess, file_path)
     #end
 
     ## Deep copy the DQN

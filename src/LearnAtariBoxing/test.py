@@ -17,21 +17,15 @@ def test(env, dir_model, dir_save, num_episodes):
         os.mkdir(dir_save)
 
     agent = Agent_Atari(env=env, exploration=0)
+    agent.onlineDQN.import_model(os.path.join(dir_model, 'model.ckpt'))
 
     # For multiprocessing
     manager = multiprocessing.Manager()
     list_rewards = manager.list([None]*num_episodes)
-    procs = []
 
     for itr_ep in range(num_episodes):
         dir_record = os.path.join(dir_save, 'records', 'test-ep_%d' % (itr_ep, ))
-        proc = multiprocessing.Process(target=test_one, args=(agent, dir_record, itr_ep, list_rewards))
-        procs.append(proc)
-        proc.start()
-    #end
-
-    for proc in procs:
-        proc.join()
+        test_one(agent, dir_record, itr_ep, list_rewards)
     #end
 
     list_rewards = list(list_rewards)

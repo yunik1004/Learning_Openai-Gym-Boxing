@@ -13,7 +13,7 @@ def train(env, dir_save, num_episodes):
     if not os.path.isdir(dir_save):
         os.mkdir(dir_save)
 
-    agent = Agent_Atari(env=env, exploration=0.9)
+    agent = Agent_Atari(env=env, exploration=1)
 
     for itr_ep in range(num_episodes):
         dir_record = os.path.join(dir_save, 'records', 'train-ep_%d' % (itr_ep, ))

@@ -6,9 +6,11 @@ from datetime import datetime
 # Installed modules
 import gym
 # User-defined modules
+from LearnAtariBoxing import utils
 from LearnAtariBoxing.test import test
 from LearnAtariBoxing.train import train
 
+os.environ["CUDA_VISIBLE_DEVICES"] = str(utils.pick_gpu_lowest_memory())
 
 resource_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'rsc')
 
