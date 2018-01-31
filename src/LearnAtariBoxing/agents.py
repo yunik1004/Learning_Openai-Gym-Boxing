@@ -41,8 +41,8 @@ class Agent_Atari:
     #end
 
     ## Save the variables of onlineDQN into file
-    def save_model(self, file_path):
-        self.onlineDQN.save_model(file_path)
+    def save_model(self, file_path, global_step=None):
+        self.onlineDQN.save_model(file_path, global_step)
     #end
 
     ## Close the tensorflow session
@@ -138,7 +138,7 @@ class DQN:
 
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
         cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, NUM_ACTIONS))), -1, 1)))
-        optimizer = tf.train.RMSPropOptimizer(learning_rate=0.00025, momentum=0.95)
+        optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001, momentum=0.95)
         self.training_step = optimizer.minimize(cost)
 
         ## Saver setting
@@ -155,8 +155,11 @@ class DQN:
     #end
 
     ## Save the model variables into file
-    def save_model(self, file_path):
-        self.saver.save(self.sess, file_path)
+    def save_model(self, file_path, global_step=None):
+        if global_step is None:
+            self.saver.save(self.sess, file_path)
+        else:
+            self.saver.save(self.sess, file_path, global_step)
     #end
 
     ## Import the model variables

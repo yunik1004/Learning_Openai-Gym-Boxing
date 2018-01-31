@@ -18,6 +18,7 @@ def train(env, dir_save, num_episodes):
     for itr_ep in range(num_episodes):
         dir_record = os.path.join(dir_save, 'records', 'train-ep_%d' % (itr_ep, ))
         train_one(agent, dir_record)
+        agent.save_model(os.path.join(dir_save, 'model.ckpt'), global_step=itr_ep)
     #end
 
     agent.save_model(os.path.join(dir_save, 'model.ckpt'))

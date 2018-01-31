@@ -22,7 +22,7 @@ group_task.add_argument("--test", action="store_true",
 group_task.add_argument("--train", action="store_true",
     help="Train the agent")
 parser.add_argument("-m", "--model", type=str,
-    help="Location of the directory where the trained model files are located. In the case of training session, this argument is meaningless. In the case of testing session, this argument must be required.")
+    help="Location of the trained model file. In the case of training session, this argument is meaningless. In the case of testing session, this argument must be required.")
 parser.add_argument("-s", "--save", type=str,
     help="Location of the directory for saving the result. In the case of training session, the default location is '%s'. In the case of testing session, the default location is '%s'." %\
         (os.path.join(resource_directory, 'models', '<current_timestamp>'),
@@ -47,9 +47,9 @@ def main():
     elif args.test:
         dir_save = os.path.join(resource_directory, 'test_results', current_timestamp())
 
-    dir_model = args.model
-    if dir_model:
-        dir_model = os.path.realpath(dir_model)
+    path_model = args.model
+    if path_model:
+        path_model = os.path.realpath(path_model)
     elif args.test:
         parser.error("'--model' argument is required for testing session")
 
@@ -63,7 +63,7 @@ def main():
     if args.train:
         train(env, dir_save, num_episodes)
     elif args.test:
-        test(env, dir_model, dir_save, num_episodes)
+        test(env, path_model, dir_save, num_episodes)
 
     env.close()
 #end

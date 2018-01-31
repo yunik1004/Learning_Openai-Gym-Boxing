@@ -10,14 +10,12 @@ from LearnAtariBoxing.preprocessors import atari_img_preprocess
 
 
 # Test the agent program
-def test(env, dir_model, dir_save, num_episodes):
-    if not os.path.isdir(dir_model):
-        raise OSError(2, 'No such directory', dir_model)
+def test(env, path_model, dir_save, num_episodes):
     if not os.path.isdir(dir_save):
         os.mkdir(dir_save)
 
     agent = Agent_Atari(env=env, exploration=0)
-    agent.onlineDQN.import_model(os.path.join(dir_model, 'model.ckpt'))
+    agent.onlineDQN.import_model(path_model)
 
     # For multiprocessing
     manager = multiprocessing.Manager()
@@ -32,7 +30,7 @@ def test(env, dir_model, dir_save, num_episodes):
 
     # Export the results
     results = OrderedDict()
-    results['model_location'] = dir_model
+    results['model_location'] = path_model
     results['mean'] = np.mean(list_rewards)
     results['std'] = np.std(list_rewards)
     results['median'] = np.median(list_rewards)
