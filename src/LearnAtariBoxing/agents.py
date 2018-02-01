@@ -21,6 +21,7 @@ class Agent_Atari:
         self.update_frequency = update_frequency
         self.current_exploration = self.init_exploration
         self.num_online_updated = 0
+        self.reset_costs()
 
         ### Create session
         self.close_session()
@@ -36,13 +37,17 @@ class Agent_Atari:
     #end
 
     ## Reset the frame sequence - Will be called when the new game starts
-    def reset_frame_sequence():
+    def reset_frame_sequence(self):
         self.frame_sequence.reset()
     #end
 
+    def reset_costs(self):
+        self.costs = [] # [(itr, cost), ...]
+    #end
+
     ## Save the variables of onlineDQN into file
-    def save_model(self, file_path, global_step=None):
-        self.onlineDQN.save_model(file_path, global_step)
+    def save_model(self, file_path):
+        self.onlineDQN.save_model(file_path)
     #end
 
     ## Close the tensorflow session
@@ -72,11 +77,13 @@ class Agent_Atari:
                 reward = batch['reward']
                 if not batch['done']:
                     reward += DISCOUNT_FACTOR * np.argmax(self.targetDQN.output(batch['fs1']))
+                current_cost = self.onlineDQN.current_cost(batch['fs1'], batch['action'], reward)
+                self.costs.append((self.num_online_updated, current_cost))
                 self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
                 self.num_online_updated += 1
-                # Decreasing exploitation
-                if self.num_online_updated % EPSILON_DECAY_FREQUENCY == 0 and self.current_exploration * EPSILON_DECAY_RATE >= self.final_exploration:
-                    self.current_exploration *= EPSILON_DECAY_RATE
+                ## Decreasing exploitation rate
+                if self.num_online_updated % EPSILON_DECAY_FREQUENCY == 0:
+                    self.current_exploration = min(max(self.current_exploration * EPSILON_DECAY_RATE, self.final_exploration), self.current_exploration)
                 if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
                     self.update_targetDQN()
             #end
@@ -138,17 +145,23 @@ class DQN:
         self.pred = tf.add(tf.matmul(dense1, self.wout), self.bout)
 
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
-        cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n))), -1, 1)))
+        qvalue = tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n)))
+        self.cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - qvalue, -1, 1)))
         optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001, momentum=0.95)
-        self.training_step = optimizer.minimize(cost)
+        self.training_step = optimizer.minimize(self.cost)
 
         ## Saver setting
         self.saver = tf.train.Saver({self.conv1.wc, self.conv1.bc, self.conv2.wc, self.conv2.bc, self.wd1, self.bd1, self.wout, self.bout}, max_to_keep=0)
     #end
 
-    # Run the optimizer
+    ## Run the optimizer
     def optimize(self, input_x, action, reward):
         self.sess.run(self.training_step, feed_dict={self.input_x: input_x, self.action: action, self.reward: reward})
+    #end
+
+    ## Return the current cost
+    def current_cost(self, input_x, action, reward):
+        return self.sess.run(self.cost, feed_dict={self.input_x: input_x, self.action: action, self.reward: reward})
     #end
 
     def output(self, input_x):
@@ -156,11 +169,8 @@ class DQN:
     #end
 
     ## Save the model variables into file
-    def save_model(self, file_path, global_step=None):
-        if global_step is None:
-            self.saver.save(self.sess, file_path)
-        else:
-            self.saver.save(self.sess, file_path, global_step)
+    def save_model(self, file_path):
+        self.saver.save(self.sess, file_path)
     #end
 
     ## Import the model variables

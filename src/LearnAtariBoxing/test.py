@@ -1,5 +1,5 @@
 # Python batteries
-import json, multiprocessing, os
+import json, os
 from collections import OrderedDict
 # Installed modules
 import numpy as np
@@ -17,16 +17,12 @@ def test(env, path_model, dir_save, num_episodes):
     agent = Agent_Atari(env=env, exploration=0)
     agent.onlineDQN.import_model(path_model)
 
-    # For multiprocessing
-    manager = multiprocessing.Manager()
-    list_rewards = manager.list([None]*num_episodes)
-
+    list_rewards =[]
     for itr_ep in range(num_episodes):
         dir_record = os.path.join(dir_save, 'records', 'test-ep_%d' % (itr_ep, ))
-        test_one(agent, dir_record, itr_ep, list_rewards)
+        total_reward = test_one(agent, dir_record, itr_ep)
+        list_rewards.append(total_reward)
     #end
-
-    list_rewards = list(list_rewards)
 
     # Export the results
     results = OrderedDict()
@@ -44,7 +40,7 @@ def test(env, path_model, dir_save, num_episodes):
 #end
 
 # Test one episode
-def test_one(agent, dir_record, itr, list_rewards):
+def test_one(agent, dir_record, itr):
     agent.env.seed(itr)
 
     env_record = Monitor(agent.env, directory=dir_record)
@@ -64,6 +60,9 @@ def test_one(agent, dir_record, itr, list_rewards):
             break
     #end
 
-    list_rewards[itr] = env_record.get_episode_rewards()[0]
+    total_reward = env_record.get_episode_rewards()[0]
+    
     env_record.close()
+
+    return total_reward
 #end
