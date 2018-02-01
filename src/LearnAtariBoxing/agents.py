@@ -27,8 +27,8 @@ class Agent_Atari:
         self.sess = tf.Session()
 
         ### Generate two DQNs - online, target
-        self.onlineDQN = DQN(self.sess)
-        self.targetDQN = DQN(self.sess)
+        self.onlineDQN = DQN(self.sess, self.env)
+        self.targetDQN = DQN(self.sess, self.env)
 
         ### Initialize all tensorflow variables
         self.sess.run(tf.global_variables_initializer())
@@ -62,23 +62,21 @@ class Agent_Atari:
         else:
             qvalues = self.onlineDQN.output(self.frame_sequence.memory_as_array())
             action = np.argmax(qvalues)
-
-        # Decreasing exploitation
-        if self.current_exploration * EPSILON_DECAY >= self.final_exploration:
-            self.current_exploration *= EPSILON_DECAY
-
         return action
     #end
 
     def learn(self):
         mini_batches = self.replay_memory.sample_mini_batch()
-        for _ in range(10):
+        for _ in range(NUM_TRAIN_PER_MINIBATCH):
             for batch in mini_batches:
                 reward = batch['reward']
                 if not batch['done']:
                     reward += DISCOUNT_FACTOR * np.argmax(self.targetDQN.output(batch['fs1']))
                 self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
                 self.num_online_updated += 1
+                # Decreasing exploitation
+                if self.num_online_updated % EPSILON_DECAY_FREQUENCY == 0 and self.current_exploration * EPSILON_DECAY_RATE >= self.final_exploration:
+                    self.current_exploration *= EPSILON_DECAY_RATE
                 if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
                     self.update_targetDQN()
             #end
@@ -94,14 +92,14 @@ class Agent_Atari:
 
 # Deep Q-Learning Network
 class DQN:
-    def __init__(self, sess):
+    def __init__(self, sess, env):
         ## Tensorflow session
         self.sess = sess
 
         ## Network features
-        self.num_feature_map1 = 32
-        self.num_feature_map2 = 64
-        self.num_neuron_unit = 512
+        self.num_feature_map1 = 16
+        self.num_feature_map2 = 32
+        self.num_neuron_unit = 256
         self.dropout = 0.75
 
         ## Input, output tensor
@@ -135,12 +133,12 @@ class DQN:
         dense1 = tf.nn.dropout(dense1, keep_prob)
 
         ## Output layer
-        self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, NUM_ACTIONS], stddev=0.1))
-        self.bout = tf.Variable(tf.truncated_normal([NUM_ACTIONS], stddev=0.1))
+        self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, env.action_space.n], stddev=0.1))
+        self.bout = tf.Variable(tf.truncated_normal([env.action_space.n], stddev=0.1))
         self.pred = tf.add(tf.matmul(dense1, self.wout), self.bout)
 
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
-        cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, NUM_ACTIONS))), -1, 1)))
+        cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n))), -1, 1)))
         optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001, momentum=0.95)
         self.training_step = optimizer.minimize(cost)
 
