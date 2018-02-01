@@ -12,7 +12,7 @@ from LearnAtariBoxing.train import train
 
 os.environ["CUDA_VISIBLE_DEVICES"] = str(utils.pick_gpu_lowest_memory())
 
-resource_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'rsc')
+resource_directory = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'dataset')
 
 ## Arguments
 parser = argparse.ArgumentParser(description="Training/testing Atari 'Boxing' game")

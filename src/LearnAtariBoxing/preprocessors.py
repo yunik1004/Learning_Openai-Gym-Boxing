@@ -10,9 +10,9 @@ def atari_img_preprocess(img):
     return resize(img_to_gray(img), (PROCESSED_INPUT_WIDTH, PROCESSED_INPUT_HEIGHT), mode='constant')
 #end
 
-# Modify the image into gray-scale image and reduce the range from -1 to 1
+# Modify the image into gray-scale image and reduce the range from 0 to 1
 ## The shape of the image should be M*N*3
 def img_to_gray(img):
     img_grayscale = np.dot(img, [0.299, 0.587, 0.114])
-    return img_grayscale / 255
+    return img_grayscale / 255.0
 #end

@@ -72,14 +72,17 @@ class Agent_Atari:
 
     def learn(self):
         mini_batches = self.replay_memory.sample_mini_batch()
-        for batch in mini_batches:
-            reward = batch['reward']
-            if not batch['done']:
-                reward += DISCOUNT_FACTOR * np.argmax(self.targetDQN.output(batch['fs1']))
-            self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
-            self.num_online_updated += 1
-            if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
-                self.update_targetDQN()
+        for _ in range(10):
+            for batch in mini_batches:
+                reward = batch['reward']
+                if not batch['done']:
+                    reward += DISCOUNT_FACTOR * np.argmax(self.targetDQN.output(batch['fs1']))
+                self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
+                self.num_online_updated += 1
+                if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
+                    self.update_targetDQN()
+            #end
+        #end
     #end
 
     ## Update target network
