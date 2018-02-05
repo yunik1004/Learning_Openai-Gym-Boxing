@@ -154,12 +154,12 @@ class DQN:
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
         qvalue = tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n)))
         self.error = self.reward - qvalue
-        self.cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.error, -1, 1)))
-        optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001, momentum=0.95)
+        self.cost = tf.reduce_mean(tf.square(self.error))
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
         self.training_step = optimizer.minimize(self.cost)
 
         ## Saver setting
-        self.saver = tf.train.Saver({self.conv1.wc, self.conv1.bc, self.conv2.wc, self.conv2.bc, self.wd1, self.bd1, self.wout, self.bout}, max_to_keep=0)
+        self.saver = tf.train.Saver({'wc1': self.conv1.wc, 'bc1': self.conv1.bc, 'wc2': self.conv2.wc, 'bc2': self.conv2.bc, 'wd1': self.wd1, 'bd1': self.bd1, 'wout': self.wout, 'bout': self.bout}, max_to_keep=0)
     #end
 
     ## Run the optimizer
