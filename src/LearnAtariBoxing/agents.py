@@ -22,6 +22,7 @@ class Agent_Atari:
         self.current_exploration = self.init_exploration
         self.num_online_updated = 0
         self.reset_costs()
+        self.reset_errors()
 
         ### Create session
         self.close_session()
@@ -43,6 +44,10 @@ class Agent_Atari:
 
     def reset_costs(self):
         self.costs = [] # [(itr, cost), ...]
+    #end
+
+    def reset_errors(self):
+        self.errors = [] # [(itr, error), ...]
     #end
 
     ## Save the variables of onlineDQN into file
@@ -78,12 +83,14 @@ class Agent_Atari:
                 if not batch['done']:
                     reward += DISCOUNT_FACTOR * np.argmax(self.targetDQN.output(batch['fs1']))
                 current_cost = self.onlineDQN.current_cost(batch['fs1'], batch['action'], reward)
+                current_error = self.onlineDQN.current_error(batch['fs1'], batch['action'], reward)
                 self.costs.append((self.num_online_updated, current_cost))
+                self.errors.append((self.num_online_updated, current_error))
                 self.onlineDQN.optimize(batch['fs1'], batch['action'], reward)
                 self.num_online_updated += 1
                 ## Decreasing exploitation rate
                 if self.num_online_updated % EPSILON_DECAY_FREQUENCY == 0:
-                    self.current_exploration = min(max(self.current_exploration * EPSILON_DECAY_RATE, self.final_exploration), self.current_exploration)
+                    self.current_exploration = min(max(self.current_exploration - EPSILON_DECAY_RATE, self.final_exploration), self.current_exploration)
                 if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
                     self.update_targetDQN()
             #end
@@ -120,13 +127,13 @@ class DQN:
         ## First convolutional layer
         self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=AGENT_HISTORY_LENGTH, num_feature_map=self.num_feature_map1, stride=4)
         output_conv1 = self.conv1.output(self.input_x)
-        output_conv1 = tf.nn.dropout(output_conv1, keep_prob)
+        #output_conv1 = tf.nn.dropout(output_conv1, keep_prob)
         size_output_conv1 = self.conv1.size_output(PROCESSED_INPUT_WIDTH)
 
         ## Second convolutional layer
         self.conv2 = ConvolutionalLayer(size_filter=4, depth_input=self.num_feature_map1, num_feature_map=self.num_feature_map2, stride=2)
         output_conv2 = self.conv2.output(output_conv1)
-        output_conv2 = tf.nn.dropout(output_conv2, keep_prob)
+        #output_conv2 = tf.nn.dropout(output_conv2, keep_prob)
         size_output_conv2 = self.conv2.size_output(size_output_conv1)
 
         ## Reshaping output
@@ -137,7 +144,7 @@ class DQN:
         self.wd1 = tf.Variable(tf.truncated_normal([num_element_output_conv2, self.num_neuron_unit], stddev=0.1))
         self.bd1 = tf.Variable(tf.truncated_normal([self.num_neuron_unit], stddev=0.1))
         dense1 = tf.nn.relu(tf.add(tf.matmul(output_conv2_reshaped, self.wd1), self.bd1))
-        dense1 = tf.nn.dropout(dense1, keep_prob)
+        #dense1 = tf.nn.dropout(dense1, keep_prob)
 
         ## Output layer
         self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, env.action_space.n], stddev=0.1))
@@ -146,7 +153,8 @@ class DQN:
 
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
         qvalue = tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n)))
-        self.cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.reward - qvalue, -1, 1)))
+        self.error = self.reward - qvalue
+        self.cost = tf.reduce_mean(tf.square(tf.clip_by_value(self.error, -1, 1)))
         optimizer = tf.train.RMSPropOptimizer(learning_rate=0.001, momentum=0.95)
         self.training_step = optimizer.minimize(self.cost)
 
@@ -162,6 +170,11 @@ class DQN:
     ## Return the current cost
     def current_cost(self, input_x, action, reward):
         return self.sess.run(self.cost, feed_dict={self.input_x: input_x, self.action: action, self.reward: reward})
+    #end
+
+    ## Return the current cost
+    def current_error(self, input_x, action, reward):
+        return self.sess.run(self.error, feed_dict={self.input_x: input_x, self.action: action, self.reward: reward})
     #end
 
     def output(self, input_x):
