@@ -6,10 +6,12 @@ PROCESSED_INPUT_HEIGHT = 28 #84
 MINIBATCH_SIZE = 32
 
 # The number of training per one minibatch
-NUM_TRAIN_PER_MINIBATCH = 20
+NUM_TRAIN_PER_MINIBATCH = 1
 
 # Replay memory size
 REPLAY_MEMORY_SIZE = 250000
+
+REPLAY_START_SIZE = 1000 #32
 
 # Agent history length
 AGENT_HISTORY_LENGTH = 4

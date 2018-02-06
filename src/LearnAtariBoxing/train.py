@@ -88,7 +88,7 @@ def train_one(agent, dir_record, seed=None):
         ## Save results into the replay memory
         agent.replay_memory.insert(fs1, action, reward, fs2, done)
         ## Perform learning
-        if len(agent.replay_memory.memory) >= MINIBATCH_SIZE:
+        if len(agent.replay_memory.memory) >= REPLAY_START_SIZE:
             agent.learn()
         ## If done == True, then this game is finished
         if done:
