@@ -90,7 +90,7 @@ class Agent_Atari:
                 self.num_online_updated += 1
                 ## Decreasing exploitation rate
                 if self.num_online_updated % EPSILON_DECAY_FREQUENCY == 0:
-                    self.current_exploration = min(max(self.current_exploration - EPSILON_DECAY_RATE, self.final_exploration), self.current_exploration)
+                    self.current_exploration = min(max(self.current_exploration - (self.init_exploration - self.final_exploration) / FINAL_EXPLORATION_FRAME, self.final_exploration), self.current_exploration)
                 if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
                     self.update_targetDQN()
             #end
