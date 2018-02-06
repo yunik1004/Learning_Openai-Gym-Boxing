@@ -126,13 +126,13 @@ class DQN:
 
         ## First convolutional layer
         self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=AGENT_HISTORY_LENGTH, num_feature_map=self.num_feature_map1, stride=4, num=1)
-        output_conv1 = self.conv1.output(self.input_x)
+        output_conv1 = tf.nn.relu(self.conv1.output(self.input_x))
         #output_conv1 = tf.nn.dropout(output_conv1, keep_prob)
         size_output_conv1 = self.conv1.size_output(PROCESSED_INPUT_WIDTH)
 
         ## Second convolutional layer
         self.conv2 = ConvolutionalLayer(size_filter=4, depth_input=self.num_feature_map1, num_feature_map=self.num_feature_map2, stride=2, num=2)
-        output_conv2 = self.conv2.output(output_conv1)
+        output_conv2 = tf.nn.relu(self.conv2.output(output_conv1))
         #output_conv2 = tf.nn.dropout(output_conv2, keep_prob)
         size_output_conv2 = self.conv2.size_output(size_output_conv1)
 
@@ -155,7 +155,7 @@ class DQN:
         qvalue = tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n)))
         self.error = self.reward - qvalue
         self.cost = tf.reduce_mean(tf.square(self.error))
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.001) # 0.00025
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.00025)
         self.training_step = optimizer.minimize(self.cost)
 
         ## Saver setting
