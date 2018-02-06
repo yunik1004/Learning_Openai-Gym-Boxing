@@ -1,12 +1,12 @@
 # Macro size of the processed image
-PROCESSED_INPUT_WIDTH = 28
-PROCESSED_INPUT_HEIGHT = 28
+PROCESSED_INPUT_WIDTH = 28 #84
+PROCESSED_INPUT_HEIGHT = 28 #84
 
 # Minibatch size
-MINIBATCH_SIZE = 64
+MINIBATCH_SIZE = 32
 
 # The number of training per one minibatch
-NUM_TRAIN_PER_MINIBATCH = 1
+NUM_TRAIN_PER_MINIBATCH = 20
 
 # Replay memory size
 REPLAY_MEMORY_SIZE = 250000

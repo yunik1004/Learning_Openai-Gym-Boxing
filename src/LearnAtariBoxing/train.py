@@ -86,7 +86,7 @@ def train_one(agent, dir_record, seed=None):
         agent.frame_sequence.insert(atari_img_preprocess(ob))
         fs2 = agent.frame_sequence.memory_as_array()
         ## Save results into the replay memory
-        agent.replay_memory.insert(fs1, action, np.clip(reward, -1, 1), fs2, done)
+        agent.replay_memory.insert(fs1, action, reward, fs2, done)
         ## Perform learning
         if len(agent.replay_memory.memory) >= MINIBATCH_SIZE:
             agent.learn()

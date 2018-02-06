@@ -111,9 +111,9 @@ class DQN:
         self.sess = sess
 
         ## Network features
-        self.num_feature_map1 = 16
-        self.num_feature_map2 = 32
-        self.num_neuron_unit = 256
+        self.num_feature_map1 = 16 #32
+        self.num_feature_map2 = 32 #64
+        self.num_neuron_unit = 256 #512
         self.dropout = 0.75
 
         ## Input, output tensor
@@ -125,13 +125,13 @@ class DQN:
         keep_prob = tf.constant(self.dropout)
 
         ## First convolutional layer
-        self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=AGENT_HISTORY_LENGTH, num_feature_map=self.num_feature_map1, stride=4)
+        self.conv1 = ConvolutionalLayer(size_filter=8, depth_input=AGENT_HISTORY_LENGTH, num_feature_map=self.num_feature_map1, stride=4, num=1)
         output_conv1 = self.conv1.output(self.input_x)
         #output_conv1 = tf.nn.dropout(output_conv1, keep_prob)
         size_output_conv1 = self.conv1.size_output(PROCESSED_INPUT_WIDTH)
 
         ## Second convolutional layer
-        self.conv2 = ConvolutionalLayer(size_filter=4, depth_input=self.num_feature_map1, num_feature_map=self.num_feature_map2, stride=2)
+        self.conv2 = ConvolutionalLayer(size_filter=4, depth_input=self.num_feature_map1, num_feature_map=self.num_feature_map2, stride=2, num=2)
         output_conv2 = self.conv2.output(output_conv1)
         #output_conv2 = tf.nn.dropout(output_conv2, keep_prob)
         size_output_conv2 = self.conv2.size_output(size_output_conv1)
@@ -141,21 +141,21 @@ class DQN:
         output_conv2_reshaped = tf.reshape(output_conv2, [-1, num_element_output_conv2])
 
         ## Fully connected layer
-        self.wd1 = tf.Variable(tf.truncated_normal([num_element_output_conv2, self.num_neuron_unit], stddev=0.1))
-        self.bd1 = tf.Variable(tf.truncated_normal([self.num_neuron_unit], stddev=0.1))
+        self.wd1 = tf.Variable(tf.truncated_normal([num_element_output_conv2, self.num_neuron_unit], stddev=0.1), name='wd1')
+        self.bd1 = tf.Variable(tf.truncated_normal([self.num_neuron_unit], stddev=0.1), name='bd1')
         dense1 = tf.nn.relu(tf.add(tf.matmul(output_conv2_reshaped, self.wd1), self.bd1))
         #dense1 = tf.nn.dropout(dense1, keep_prob)
 
         ## Output layer
-        self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, env.action_space.n], stddev=0.1))
-        self.bout = tf.Variable(tf.truncated_normal([env.action_space.n], stddev=0.1))
+        self.wout = tf.Variable(tf.truncated_normal([self.num_neuron_unit, env.action_space.n], stddev=0.1), name='wout')
+        self.bout = tf.Variable(tf.truncated_normal([env.action_space.n], stddev=0.1), name='bout')
         self.pred = tf.add(tf.matmul(dense1, self.wout), self.bout)
 
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
         qvalue = tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n)))
         self.error = self.reward - qvalue
         self.cost = tf.reduce_mean(tf.square(self.error))
-        optimizer = tf.train.AdamOptimizer(learning_rate=0.001)
+        optimizer = tf.train.AdamOptimizer(learning_rate=0.001) # 0.00025
         self.training_step = optimizer.minimize(self.cost)
 
         ## Saver setting
@@ -207,14 +207,14 @@ class DQN:
 
 # Implementation of convolutional layer
 class ConvolutionalLayer:
-    def __init__(self, size_filter, depth_input, num_feature_map, stride):
+    def __init__(self, size_filter, depth_input, num_feature_map, stride, num):
         self.size_filter = size_filter
         self.depth_input = depth_input
         self.num_feature_map = num_feature_map
         self.stride = stride
 
-        self.wc = tf.Variable(tf.truncated_normal([self.size_filter, self.size_filter, self.depth_input, self.num_feature_map], stddev=0.1))
-        self.bc = tf.Variable(tf.truncated_normal([self.num_feature_map], stddev=0.1))
+        self.wc = tf.Variable(tf.truncated_normal([self.size_filter, self.size_filter, self.depth_input, self.num_feature_map], stddev=0.1), name='wc%d' % num)
+        self.bc = tf.Variable(tf.truncated_normal([self.num_feature_map], stddev=0.1), name='bc%d' % num)
     #end
 
     def output(self, input_x):
