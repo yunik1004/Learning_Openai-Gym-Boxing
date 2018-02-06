@@ -22,7 +22,8 @@ DISCOUNT_FACTOR = 0.99
 # Target network update frequency
 TARGET_UPDATE_FREQUENCY = 10000
 
-# It determines the epsilon decay rate for exploitation
+# It determines the epsilon decay rate
+FINAL_EXPLORATION = 0.1
 FINAL_EXPLORATION_FRAME = 1000000
 
 # Epsilon decay frequency

@@ -11,7 +11,6 @@ class Agent_Atari:
     def __init__(self, env, exploration, **kwargs):
         self.env = env
         self.init_exploration = exploration
-        self.final_exploration = 0.1
         self.reset(**kwargs)
     #end
 
@@ -90,7 +89,7 @@ class Agent_Atari:
                 self.num_online_updated += 1
                 ## Decreasing exploitation rate
                 if self.num_online_updated % EPSILON_DECAY_FREQUENCY == 0:
-                    self.current_exploration = min(max(self.current_exploration - (self.init_exploration - self.final_exploration) / FINAL_EXPLORATION_FRAME, self.final_exploration), self.current_exploration)
+                    self.current_exploration = min(max(self.current_exploration - (self.init_exploration - FINAL_EXPLORATION) / FINAL_EXPLORATION_FRAME, FINAL_EXPLORATION), self.current_exploration)
                 if self.num_online_updated % TARGET_UPDATE_FREQUENCY == 0:
                     self.update_targetDQN()
             #end
