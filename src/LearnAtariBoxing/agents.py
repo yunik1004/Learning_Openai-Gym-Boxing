@@ -110,9 +110,9 @@ class DQN:
         self.sess = sess
 
         ## Network features
-        self.num_feature_map1 = 16 #32
-        self.num_feature_map2 = 32 #64
-        self.num_neuron_unit = 256 #512
+        self.num_feature_map1 = 32
+        self.num_feature_map2 = 64
+        self.num_neuron_unit = 512
         self.dropout = 0.75
 
         ## Input, output tensor
