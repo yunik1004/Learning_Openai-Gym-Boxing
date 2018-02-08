@@ -177,7 +177,8 @@ class DQN:
     #end
 
     def output(self, input_x):
-        return self.sess.run(self.pred, feed_dict={self.input_x: input_x})
+        output = self.sess.run(self.pred, feed_dict={self.input_x: input_x})
+        return output[0]
     #end
 
     ## Save the model variables into file
