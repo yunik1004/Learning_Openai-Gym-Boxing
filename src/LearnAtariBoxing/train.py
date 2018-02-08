@@ -31,39 +31,39 @@ def train(env, dir_save, num_episodes):
         list_errors += agent.errors
         agent.reset_costs()
         agent.reset_errors()
+
+        ## Save cost graph per iteration
+        costs_episode = zip(*list_costs)
+        fig = plt.figure()
+        plt.plot(*costs_episode)
+        plt.title('Costs during training the agent')
+        plt.xlabel('Iteration')
+        plt.ylabel('Cost')
+        fig.savefig(os.path.join(dir_save, 'costs.png'))
+        plt.close(fig)
+
+        ## Save error graph per iteration
+        errors_episode = zip(*list_errors)
+        fig = plt.figure()
+        plt.plot(*errors_episode)
+        plt.title('Errors during training the agent')
+        plt.xlabel('Iteration')
+        plt.ylabel('error')
+        fig.savefig(os.path.join(dir_save, 'errors.png'))
+        plt.close(fig)
+
+        ## Save total rewards graph
+        fig = plt.figure()
+        plt.plot(range(len(list_rewards)), list_rewards)
+        plt.title('Total rewards during training the agent')
+        plt.xlabel('Episode')
+        plt.ylabel('Total reward')
+        fig.savefig(os.path.join(dir_save, 'total_rewards.png'))
+        plt.close(fig)
     #end
 
     ## Save model
     agent.save_model(os.path.join(dir_save, 'model.ckpt'))
-
-    ## Save cost graph per iteration
-    costs_episode = zip(*list_costs)
-    fig = plt.figure()
-    plt.plot(*costs_episode)
-    plt.title('Costs during training the agent')
-    plt.xlabel('Iteration')
-    plt.ylabel('Cost')
-    fig.savefig(os.path.join(dir_save, 'costs.png'))
-    plt.close(fig)
-
-    ## Save error graph per iteration
-    errors_episode = zip(*list_errors)
-    fig = plt.figure()
-    plt.plot(*errors_episode)
-    plt.title('Errors during training the agent')
-    plt.xlabel('Iteration')
-    plt.ylabel('error')
-    fig.savefig(os.path.join(dir_save, 'errors.png'))
-    plt.close(fig)
-
-    ## Save total rewards graph
-    fig = plt.figure()
-    plt.plot(range(num_episodes), list_rewards)
-    plt.title('Total rewards during training the agent')
-    plt.xlabel('Episode')
-    plt.ylabel('Total reward')
-    fig.savefig(os.path.join(dir_save, 'total_rewards.png'))
-    plt.close(fig)
 
     agent.close_session()
 #end
