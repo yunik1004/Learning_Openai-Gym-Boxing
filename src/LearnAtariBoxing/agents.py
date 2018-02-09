@@ -153,7 +153,8 @@ class DQN:
         ## Cost function and optimizer - tf.gather(self.pred, self.action)
         qvalue = tf.reduce_sum(tf.multiply(self.pred, tf.one_hot(self.action, env.action_space.n)))
         self.error = self.reward - qvalue
-        self.cost = tf.reduce_mean(tf.square(self.error))
+        error_clipped = tf.clip_by_value(self.error, -1.0, 1.0)
+        self.cost = tf.reduce_mean(tf.square(error_clipped))
         optimizer = tf.train.AdamOptimizer(learning_rate=0.00025)
         self.training_step = optimizer.minimize(self.cost)
 
